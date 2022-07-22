@@ -3,7 +3,7 @@ name: Java CI build and test
 on: [push]
 
 jobs:
-  test:
+  build-test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -13,26 +13,22 @@ jobs:
       max-parallel: 1
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up JDK ${{ matrix.java }}
         uses: foojayio/setup-java@disco
         with:
-          distribution: 'zulu'
+          distro: 'zulu'
           java-version: ${{ matrix.java }}
           java-package: jdk+fx
       - name: Verify with Maven
         run: mvn clean package -B --file pom.xml
-  build-jar:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-latest ]
-    steps:
-      - name: upload archive
+      - name: Listing artifacts
+        run: ls -l target/*.jar
+      - name: Uploading artifacts
         uses: actions/upload-artifact@v3
-	with:
-	  path: |
-	     target/*.jar
-	  if-no-files-found: error
-	  retention-days: 1
+        with:
+          path: |
+             target/*.jar
+          if-no-files-found: error
+          retention-days: 1
 ...
